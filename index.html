@@ -1,127 +1,220 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
-<title>ギターストローク・マスター</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#ffc857" />
+  <title>Rhythm Master</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@700;800;900&family=Nunito:wght@800;900&display=swap');
+    :root{
+      --purple:#37285f;
+      --lav:#8376a8;
+      --cream:#fff9ef;
+      --cream2:#fff1d2;
+      --yellow:#ffdc5c;
+      --yellow2:#ffc857;
+      --pink:#ef6375;
+      --blue:#5aa6e8;
+      --mint:#b8d7a6;
+      --violet:#9174e6;
+      --line:#37285f;
+      --shadow:0 9px 0 rgba(55,40,95,.98),0 18px 28px rgba(55,40,95,.18);
+    }
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+    body{
+      margin:0; min-height:100svh;
+      font-family:"M PLUS Rounded 1c","Nunito",-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;
+      background:
+        repeating-linear-gradient(135deg, rgba(255,203,92,.28) 0 34px, rgba(255,180,66,.24) 34px 68px),
+        linear-gradient(160deg,#ffd27b 0%,#ffb64d 100%);
+      color:var(--purple); overflow-x:hidden; overflow-y:auto;
+    }
+    .app{width:min(930px,100%); min-height:100svh; margin:0 auto; padding:8px 10px 12px; display:flex; flex-direction:column; gap:8px}
+    .shell{background:var(--cream); border:7px solid var(--purple); border-radius:30px; padding:10px 10px 12px; box-shadow:0 10px 0 rgba(55,40,95,.18)}
+    header{display:grid; grid-template-columns:1fr; align-items:center; gap:4px; margin-bottom:7px}
+    h1{font-size:clamp(27px,7.2vw,50px); margin:0; letter-spacing:.04em; color:var(--purple); line-height:1.05; font-weight:900; text-align:center}
+    .subtitle{font-size:clamp(15px,4vw,24px); color:var(--lav); text-align:center; font-weight:900; line-height:1.25; margin:2px 0 6px}
+    .panel{background:var(--cream2); border:5px solid var(--purple); border-radius:24px; box-shadow:0 6px 0 rgba(55,40,95,.98); padding:9px}
+    .controls{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; align-items:end}
+    label{font-size:12px; font-weight:900; display:block; margin:0 0 4px 6px; color:var(--lav)}
+    select,input{width:100%; border:5px solid var(--purple); border-radius:18px; padding:9px 8px; background:#fff; color:var(--purple); font-size:16px; font-weight:900; outline:none; font-family:inherit; min-height:50px}
+    .buttons{display:grid; grid-template-columns:2fr 1fr; gap:8px; grid-column:1/-1}
+    button{border:5px solid var(--purple); border-radius:19px; padding:10px 10px; font-size:20px; font-weight:900; color:var(--purple); box-shadow:0 7px 0 rgba(55,40,95,.98); cursor:pointer; touch-action:manipulation; font-family:inherit}
+    button:active{transform:translateY(5px); box-shadow:0 4px 0 rgba(55,40,95,.98)}
+    #startBtn{background:var(--yellow); font-size:clamp(23px,6.3vw,38px); min-height:58px}
+    #stopBtn{background:#fff; color:var(--purple); min-height:58px}
+    .stage{position:relative; height:clamp(275px,43svh,430px); overflow:hidden; background:linear-gradient(#fffefb,#fff8ef); border-radius:26px; border:5px solid var(--purple); box-shadow:0 6px 0 rgba(55,40,95,.98); margin-top:10px}
+    .lane{position:absolute; left:0; right:0; top:35%; height:92px; transform:translateY(-50%); background:linear-gradient(90deg,transparent,rgba(255,220,92,.32),transparent); border-top:4px solid rgba(55,40,95,.72); border-bottom:4px solid rgba(55,40,95,.72)}
+    .judgeLine{position:absolute; left:50%; top:18%; bottom:38%; width:6px; border-radius:6px; background:var(--pink); box-shadow:0 0 0 7px rgba(239,99,117,.14)}
+    .note{position:absolute; top:35%; width:60px; height:78px; margin-left:-30px; transform:translateY(-50%); display:grid; place-items:center; filter:drop-shadow(0 7px 7px rgba(55,40,95,.20))}
+    .note>div{width:58px;height:70px;border:5px solid var(--purple);border-radius:999px;background:#fff;display:grid;place-items:center;padding-top:2px}
+    .note .symbol{font-size:30px; line-height:1; color:var(--purple)}
+    .note .arrow{font-size:25px; font-weight:1000; margin-top:-5px; color:var(--pink); text-shadow:1px 2px 0 #fff}
+    .note.up .arrow{color:var(--blue)}.note.mute .arrow{color:var(--violet)}.note.rest{opacity:.35}
+    .pawWrap{position:absolute; left:0; right:0; bottom:12px; display:grid; place-items:center; gap:5px; pointer-events:none}
+    #pawBtn{pointer-events:auto; width:min(150px,38vw); aspect-ratio:1/1; border-radius:32px; background:linear-gradient(#fff,#fff1d2); border:6px solid var(--purple); box-shadow:0 8px 0 rgba(55,40,95,.98),0 16px 20px rgba(55,40,95,.20); font-size:62px; display:grid; place-items:center; padding:0}
+    #pawBtn.hit{animation:pop .18s ease-out}@keyframes pop{50%{transform:scale(1.08)}}
+    .hint{font-size:11px; font-weight:900; background:#fff; border-radius:999px; padding:5px 10px; border:3px solid var(--purple); color:var(--lav); text-align:center}
+    .countdown,.judge{position:absolute; inset:0; display:grid; place-items:center; text-align:center; pointer-events:none; font-weight:1000}
+    .countdown{font-size:clamp(58px,18vw,130px); color:var(--purple); text-shadow:4px 6px 0 #fff; z-index:5}.countdown:empty{display:none}
+    .judge{align-items:start; padding-top:22%; font-size:clamp(32px,10vw,70px); color:var(--pink); text-shadow:3px 4px 0 #fff; z-index:4}.judge:empty{display:none}
+    .scorebar{display:grid; grid-template-columns:repeat(3,1fr); gap:7px; text-align:center; margin-top:10px}
+    .scorebox{background:#fff; border:4px solid var(--purple); border-radius:17px; padding:5px 3px; font-size:13px; font-weight:1000; box-shadow:0 4px 0 rgba(55,40,95,.98)}.scorebox span{display:block; color:var(--pink); font-size:20px; line-height:1.1}
+    .footer{font-size:12px; text-align:center; opacity:.75; font-weight:900; margin-top:12px}
+    
+    @media (max-height:740px){
+      .app{padding:5px 8px 8px}.shell{padding:8px;border-width:6px;border-radius:26px}
+      h1{font-size:clamp(24px,6.5vw,40px)}.subtitle{font-size:14px;margin-bottom:4px}
+      .panel{padding:7px}.controls{gap:6px}label{font-size:11px}select,input{min-height:44px;padding:6px;font-size:14px;border-width:4px}
+      #startBtn,#stopBtn{min-height:48px;font-size:20px}.scorebar{margin-top:7px}.stage{height:38svh;min-height:250px;margin-top:8px}
+      #pawBtn{width:min(132px,35vw);font-size:54px}.hint{display:none}
+    }
 
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="manifest" href="data:application/manifest+json,{%22name%22:%22ギターストローク・マスター%22,%22short_name%22:%22ギタスト%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22orientation%22:%22portrait%22,%22background_color%22:%22%23fff8ed%22,%22theme_color%22:%22%23ffb94f%22,%22icons%22:[{%22src%22:%22data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='%23ffdd5c'><circle cx='50' cy='50' r='50'/><text x='50' y='65' font-size='50' text-anchor='middle'>🎸</text></svg>%22,%22sizes%22:%22512x512%22,%22type%22:%22image/svg+xml%22}]}">
-
-<style>
-  :root{
-    --ink:#302257; --soft:#fff8ed; --cream:#fff0cf; --yellow:#ffdd5c;
-    --red:#ef6478; --blue:#5ba7e8; --purple:#9274df; --green:#70d99a;
-  }
-  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select: none;}
-  body{margin:0; font-family:-apple-system,BlinkMacSystemFont,"Hiragino Maru Gothic ProN","Hiragino Sans",system-ui,sans-serif; background:repeating-linear-gradient(135deg,#ffc462 0 28px,#ffb94f 28px 56px); color:var(--ink); min-height:100vh; display:flex; justify-content:center; overflow-x:hidden}
-  .phone{width:min(100vw,520px); min-height:100vh; background:var(--soft); border-left:6px solid var(--ink); border-right:6px solid var(--ink); padding:calc(28px + env(safe-area-inset-top)) 20px calc(22px + env(safe-area-inset-bottom)); position:relative; overflow:hidden; display: flex; flex-direction: column;}
-  h1{font-size:32px; text-align:center; margin:4px 0 6px; letter-spacing:.03em; font-weight:900}
-  .sub{text-align:center; font-weight:800; color:#7c6f9e; font-size:17px; line-height:1.55; margin-bottom:18px}
-  .controls{display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin:8px 0 16px}
-  .card{background:var(--cream); border:4px solid var(--ink); border-radius:18px; padding:12px 10px; box-shadow:0 6px 0 var(--ink)}
-  label{font-weight:900; color:#796c9d; display:block; margin-bottom:8px; font-size:15px}
-  input,select{width:100%; border:4px solid var(--ink); border-radius:14px; padding:11px 8px; color:var(--ink); font-size:18px; font-weight:900; background:white}
-  button{font:inherit; color:var(--ink); border:4px solid var(--ink); border-radius:18px; font-weight:900; cursor:pointer; box-shadow:0 8px 0 var(--ink); transform:translateY(0); touch-action:manipulation}
-  button:active{transform:translateY(5px); box-shadow:0 3px 0 var(--ink)}
-  .start{width:100%; background:var(--yellow); padding:24px 10px; font-size:30px; margin:18px 0 28px}
-  .lane{position:relative; height:94px; margin:10px 0 6px; display:flex; align-items:center; justify-content:space-between}
-  .line{position:absolute; left:-10px; right:-10px; height:4px; background:#7d7397; top:45px; z-index:0}
-  .beat{z-index:1; width:48px; height:58px; border:4px solid var(--ink); border-radius:50%; background:white; display:flex; align-items:center; justify-content:center; font-size:28px; font-weight:900; transition:.12s}
-  .beat.hit{background:#fff2a8; transform:scale(1.18)} .beat.now{outline:6px solid rgba(255,221,92,.7)}
-  .nums{display:flex; justify-content:space-between; padding:0 5px; font-weight:900; color:#3b2b67; font-size:17px; margin-bottom:8px}
-  .judge{text-align:center; min-height:86px; font-size:42px; font-weight:1000; display:flex; align-items:center; justify-content:center; flex-direction:column; line-height:1.05; flex-grow: 1;}
-  .score{font-size:17px; color:#7b6c9b; margin-top:8px}
-  .pads{display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; padding-top:12px; background:linear-gradient(transparent,var(--soft) 25%)}
-  .pad{height:112px; color:white; text-shadow:0 2px 0 rgba(0,0,0,.12); font-size:24px; line-height:1.3; white-space:pre-line}
-  .down{background:var(--red)} .up{background:var(--blue)} .mute{background:var(--purple)}
-  .mini{font-size:14px; display:block; margin-top:7px}
-  .flash{position:absolute; inset:0; pointer-events:none; opacity:0; background:radial-gradient(circle at center, rgba(255,221,92,.55), transparent 55%); transition:opacity .18s}
-  .flash.on{opacity:1}.hint{font-size:13px; color:#7b6c9b; text-align:center; margin:10px 0 0; line-height:1.45}.smallrow{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px}.tiny{padding:10px; background:#fff; font-size:14px; box-shadow:0 4px 0 var(--ink)}
-  @media(max-width:390px){h1{font-size:25px}.phone{padding-left:14px;padding-right:14px}.pad{font-size:21px;height:102px}.controls{gap:7px}.card{padding:10px 7px}.beat{width:42px;height:52px}.judge{font-size:36px}}
-</style>
+  </style>
 </head>
 <body>
-<div class="phone">
-  <div class="flash" id="flash"></div>
-  <h1>🎸 ギターストローク・マスター</h1>
-  <div class="sub">正しいタイミングで<br>「ダウン・アップ・ミュート」を押そう</div>
+  <div class="app">
+    <div class="shell">
+    <header>
+      <h1>🎸 Rhythm Master</h1>
+      <div class="subtitle">正しいタイミングで🐾を押そう！</div>
+    </header>
 
-  <div class="controls">
-    <div class="card"><label>BPM</label><input id="bpm" type="number" min="50" max="180" value="90"></div>
-    <div class="card"><label>リズム</label><select id="pattern"></select></div>
-    <div class="card"><label>小節数</label><select id="bars"><option>2</option><option selected>4</option><option>8</option></select></div>
+    <section class="panel controls">
+      <div><label for="bpm">BPM</label><input id="bpm" type="number" min="50" max="220" value="100"></div>
+      <div><label for="pattern">リズム</label><select id="pattern">
+        <option value="eighth">8分：↓ ↑ ↓ ↑</option>
+        <option value="offbeat">裏打ち：休 ↑ 休 ↑</option>
+        <option value="sixteenth">16分：↓ ↑ ↓ ↑</option>
+        <option value="shuffle">シャッフル：↓ ↑ ↓ ↑</option>
+        <option value="mute">カッティング：↓ × ↑ ×</option>
+      </select></div>
+      <div><label for="bars">小節数</label><select id="bars"><option>2</option><option selected>4</option><option>8</option></select></div>
+      <div class="buttons"><button id="startBtn">スタート</button><button id="stopBtn">停止</button></div>
+    </section>
+
+    <section class="scorebar">
+      <div class="scorebox">SCORE<span id="score">0</span></div>
+      <div class="scorebox">COMBO<span id="combo">0</span></div>
+      <div class="scorebox">BEST<span id="best">0</span></div>
+    </section>
+
+    <main class="stage" id="stage">
+      <div class="lane"></div>
+      <div class="judgeLine"></div>
+      <div class="countdown" id="countdown">Ready?</div>
+      <div class="judge" id="judgeText"></div>
+      <div class="pawWrap"><button id="pawBtn" aria-label="リズムに合わせて押す">🐾</button><div class="hint">音符が線に来たら🐾をタップ！</div></div>
+    </main>
+    <div class="footer">iPhoneは共有ボタン →「ホーム画面に追加」でアプリ化できます</div>
+    </div>
   </div>
-  <button class="start" id="start">スタート</button>
-  <div class="lane"><div class="line"></div><div id="beats" style="display:contents"></div></div>
-  <div class="nums" id="nums"></div>
-  <div class="judge" id="judge">Ready?<div class="score" id="score">PERFECTをねらおう</div></div>
-  <div class="pads">
-    <button class="pad down" id="down">↓ ダウン<span class="mini">キー：D</span></button>
-    <button class="pad up" id="up">↑ アップ<span class="mini">キー：F</span></button>
-    <button class="pad mute" id="mute">× ミュート<span class="mini">キー：J</span></button>
-  </div>
-  <div class="smallrow"><button class="tiny" id="stop">停止</button><button class="tiny" id="installBtn" style="display:none;">アプリをインストール</button></div>
-  <div class="hint" id="iosHint">iPhoneはブラウザの [共有ボタン] →「ホーム画面に追加」でアプリ化できます。</div>
-</div>
 <script>
-// リズムパターンを「裏打ち」「シンコペーション」強化版にアップデート！
-const patterns={
- '8分ストローク': ['D','U','D','U','D','U','D','U'],
- 'レゲエ風(裏打ち)': [null,'U',null,'U',null,'U',null,'U'],
- '8分シンコペーション': ['D',null,'D','U',null,'U','D','U'],
- '2・4拍ミュート': ['D','U','M','U','D','U','M','U'],
- 'カッティング基礎': ['D','M','M','U','M','U','D','M'],
- 'ファンク16分ノリ': ['D','M','D','U','M','U','D','M','M','U','D','M','D','M','M','U'],
- 'シャッフル風': ['D',null,'U','D',null,'U','D',null,'U','D',null,'U']
-};
-const symbols={D:'↓',U:'↑',M:'×'}; const labels={D:'ダウン',U:'アップ',M:'ミュート'};
-let audio, timer=[], startTime=0, active=false, notes=[], nextIdx=0, judged=[], stats;
-const $=id=>document.getElementById(id);
-Object.keys(patterns).forEach(k=>{let o=document.createElement('option');o.textContent=k;$('pattern').appendChild(o)});
-function ensureAudio(){ if(!audio) audio=new (window.AudioContext||window.webkitAudioContext)(); if(audio.state==='suspended') audio.resume(); }
-function tone(freq=880,dur=.055,type='sine',vol=.18,when=audio.currentTime){ const osc=audio.createOscillator(), g=audio.createGain(); osc.type=type; osc.frequency.setValueAtTime(freq,when); g.gain.setValueAtTime(vol,when); g.gain.exponentialRampToValueAtTime(.001,when+dur); osc.connect(g); g.connect(audio.destination); osc.start(when); osc.stop(when+dur+.02); }
-function clickSound(strong=false,when=audio.currentTime){ tone(strong?1180:760,.045,strong?'triangle':'square',strong?.16:.09,when); }
-function actionSound(a){ tone(a==='D'?180:a==='U'?300:120,.08,a==='M'?'sawtooth':'triangle',.16); }
-function renderLane(){ const p=patterns[$('pattern').value], n=p.length; $('beats').innerHTML=''; $('nums').innerHTML=''; for(let i=0;i<n;i++){let b=document.createElement('div'); b.className='beat'; b.id='b'+i; b.textContent=p[i]?symbols[p[i]]:'·'; b.style.color=p[i]==='D'?'#ef6478':p[i]==='U'?'#5ba7e8':p[i]==='M'?'#9274df':'#b7aecb'; $('beats').appendChild(b)} for(let i=0;i<n;i++){let d=document.createElement('div'); d.textContent=(n===16)?(i%4===0?(i/4+1):'·'):(i%2===0?(i/2+1):'&'); $('nums').appendChild(d)} }
-$('pattern').onchange=renderLane; renderLane();
-function clearTimers(){timer.forEach(clearTimeout); timer=[];}
-function start(){ ensureAudio(); clearTimers(); active=true; nextIdx=0; judged=[]; stats={perfect:0,good:0,ok:0,miss:0,total:0}; renderLane(); $('score').textContent='3秒カウントダウン'; let count=3; $('judge').firstChild.nodeValue='3'; const beatSec=60/(+$('bpm').value||80); [0,1,2,3].forEach(i=>timer.push(setTimeout(()=>{ if(i<3){$('judge').firstChild.nodeValue=String(3-i); tone(660,.09,'triangle',.2)} else { $('judge').firstChild.nodeValue='GO!'; beginPlay(beatSec); }},i*700))); }
-function beginPlay(beatSec){ const pat=patterns[$('pattern').value]; const stepSec = pat.length===16 ? beatSec/4 : pat.length===12 ? beatSec/3 : beatSec/2; const bars=+$('bars').value; notes=[]; let t=audio.currentTime+.25; startTime=performance.now()+250; for(let bar=0;bar<bars;bar++){ for(let i=0;i<pat.length;i++){ const action=pat[i]; const idx=bar*pat.length+i; notes.push({time:startTime+(bar*pat.length+i)*stepSec*1000, action, lane:i%pat.length, judged:!action}); const when=t+(bar*pat.length+i)*stepSec; if(i===0) clickSound(true,when); else clickSound(false,when); }} stats.total=notes.filter(n=>n.action).length; notes.forEach((n,idx)=>{ timer.push(setTimeout(()=>markNow(idx), Math.max(0,n.time-performance.now()))); timer.push(setTimeout(()=>autoMiss(idx), Math.max(0,n.time-performance.now()+210))); }); timer.push(setTimeout(finish, Math.max(0, notes.at(-1).time-performance.now()+650))); }
-function markNow(idx){ if(!active)return; document.querySelectorAll('.beat').forEach(e=>e.classList.remove('now')); const n=notes[idx]; const el=$('b'+n.lane); if(el){el.classList.add('now'); setTimeout(()=>el.classList.remove('now'),130)} }
-function autoMiss(idx){ const n=notes[idx]; if(!active||!n.action||n.judged)return; n.judged=true; stats.miss++; showJudge('MISS…', 'もう一回！'); }
-function hit(action){ if(!active)return; ensureAudio(); actionSound(action); const now=performance.now(); let best=-1, diff=9999; for(let i=0;i<notes.length;i++){const n=notes[i]; if(!n.action||n.judged)continue; const d=Math.abs(now-n.time); if(d<diff){diff=d; best=i}} if(best<0||diff>260){stats.miss++; showJudge('MISS…','タイミング外'); return;} const n=notes[best]; n.judged=true; let text,sub; if(n.action!==action){stats.miss++; text='ちがう！'; sub=`${labels[n.action]}だよ`; } else if(diff<=55){stats.perfect++; text='PERFECT!'; sub='最高！'; } else if(diff<=115){stats.good++; text='いいね！'; sub='ナイス'; } else {stats.ok++; text='OK!'; sub='あと少し'; } const el=$('b'+n.lane); if(el){el.classList.add('hit'); setTimeout(()=>el.classList.remove('hit'),140)} showJudge(text,sub); }
-function showJudge(t,s){ $('judge').firstChild.nodeValue=t; const done=stats.perfect+stats.good+stats.ok+stats.miss; $('score').textContent=`${s}　${done}/${stats.total}　P:${stats.perfect} いいね:${stats.good} OK:${stats.ok} MISS:${stats.miss}`; $('flash').classList.add('on'); setTimeout(()=>$('flash').classList.remove('on'),120); }
-function finish(){ active=false; clearTimers(); const rate=Math.round((stats.perfect*1+stats.good*.75+stats.ok*.45)/Math.max(1,stats.total)*100); $('judge').firstChild.nodeValue= rate>=90?'天才！':rate>=70?'いいね！':rate>=50?'もう少し！':'練習しよ！'; $('score').textContent=`スコア ${rate}%　PERFECT ${stats.perfect}/${stats.total}`; document.querySelectorAll('.beat').forEach(e=>e.classList.remove('now')); }
-function stop(){active=false; clearTimers(); $('judge').firstChild.nodeValue='Ready?'; $('score').textContent='停止しました'; document.querySelectorAll('.beat').forEach(e=>e.classList.remove('now'));}
-$('start').onclick=start; $('stop').onclick=stop; $('down').onclick=()=>hit('D'); $('up').onclick=()=>hit('U'); $('mute').onclick=()=>hit('M');
-document.addEventListener('keydown',e=>{const k=e.key.toLowerCase(); if(k==='d')hit('D'); if(k==='f')hit('U'); if(k==='j')hit('M'); if(k===' ')start();});
+(() => {
+  const stage = document.getElementById('stage');
+  const startBtn = document.getElementById('startBtn');
+  const stopBtn = document.getElementById('stopBtn');
+  const pawBtn = document.getElementById('pawBtn');
+  const bpmInput = document.getElementById('bpm');
+  const patternSelect = document.getElementById('pattern');
+  const barsSelect = document.getElementById('bars');
+  const countdown = document.getElementById('countdown');
+  const judgeText = document.getElementById('judgeText');
+  const scoreEl = document.getElementById('score');
+  const comboEl = document.getElementById('combo');
+  const bestEl = document.getElementById('best');
 
-// --- PWA用のインストール制御処理 ---
-let deferredPrompt;
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  $('installBtn').style.display = 'block';
-  $('iosHint').style.display = 'none';
-});
-$('installBtn').onclick = async () => {
-  if (deferredPrompt) {
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === 'accepted') {
-      $('installBtn').style.display = 'none';
-    }
-    deferredPrompt = null;
+  let audioCtx = null;
+  let running = false;
+  let rafId = 0;
+  let timers = [];
+  let notes = [];
+  let startTime = 0;
+  let score = 0, combo = 0, best = Number(localStorage.getItem('grmBest') || 0);
+  let endTimer = 0;
+  bestEl.textContent = best;
+
+  const PATTERNS = {
+    eighth:   [{b:0,d:'down'}, {b:.5,d:'up'}, {b:1,d:'down'}, {b:1.5,d:'up'}, {b:2,d:'down'}, {b:2.5,d:'up'}, {b:3,d:'down'}, {b:3.5,d:'up'}],
+    offbeat:  [{b:.5,d:'up'}, {b:1.5,d:'up'}, {b:2.5,d:'up'}, {b:3.5,d:'up'}],
+    sixteenth:[{b:0,d:'down'}, {b:.25,d:'up'}, {b:.5,d:'down'}, {b:.75,d:'up'}, {b:1,d:'down'}, {b:1.25,d:'up'}, {b:1.5,d:'down'}, {b:1.75,d:'up'}, {b:2,d:'down'}, {b:2.25,d:'up'}, {b:2.5,d:'down'}, {b:2.75,d:'up'}, {b:3,d:'down'}, {b:3.25,d:'up'}, {b:3.5,d:'down'}, {b:3.75,d:'up'}],
+    shuffle:  [{b:0,d:'down'}, {b:2/3,d:'up'}, {b:1,d:'down'}, {b:1+2/3,d:'up'}, {b:2,d:'down'}, {b:2+2/3,d:'up'}, {b:3,d:'down'}, {b:3+2/3,d:'up'}],
+    mute:     [{b:0,d:'down'}, {b:.5,d:'mute'}, {b:1,d:'up'}, {b:1.5,d:'mute'}, {b:2,d:'down'}, {b:2.5,d:'mute'}, {b:3,d:'up'}, {b:3.5,d:'mute'}]
+  };
+  const icons = {down:'♪', up:'♫', mute:'♬'};
+  const arrows = {down:'↓', up:'↑', mute:'×'};
+
+  function setTimer(fn, ms){ const id = setTimeout(fn, ms); timers.push(id); return id; }
+  function clearAllTimers(){ timers.forEach(clearTimeout); timers = []; clearTimeout(endTimer); }
+  function ensureAudio(){ if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if(audioCtx.state === 'suspended') audioCtx.resume(); }
+  function beep(freq=880, dur=.045, type='sine', vol=.06){
+    if(!running || !audioCtx) return;
+    const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+    osc.type = type; osc.frequency.value = freq; gain.gain.value = vol;
+    osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + dur);
   }
-};
-if ('serviceWorker' in navigator) {
-  const swCode = "self.addEventListener('fetch', function(e){});";
-  const blob = new Blob([swCode], {type: 'text/javascript'});
-  const url = URL.createObjectURL(blob);
-  navigator.serviceWorker.register(url);
-}
+  function resetScore(){ score=0; combo=0; scoreEl.textContent=0; comboEl.textContent=0; }
+  function makeNotes(){
+    const bpm = Number(bpmInput.value) || 100; const beatMs = 60000 / bpm; const bars = Number(barsSelect.value);
+    const base = PATTERNS[patternSelect.value]; notes = [];
+    for(let bar=0; bar<bars; bar++) base.forEach(n => notes.push({...n, time:(bar*4+n.b)*beatMs, hit:false, missed:false}));
+    return {beatMs, totalMs: bars*4*beatMs};
+  }
+  function drawNote(n, travelMs){
+    const el = document.createElement('div'); el.className = `note ${n.d}`;
+    el.innerHTML = `<div><div class="symbol">${icons[n.d]}</div><div class="arrow">${arrows[n.d]}</div></div>`;
+    stage.appendChild(el); n.el = el; n.spawn = n.time - travelMs;
+  }
+  function showJudge(text){ judgeText.textContent = text; setTimer(()=>{ if(judgeText.textContent === text) judgeText.textContent=''; }, 450); }
+  function hit(){
+    if(!running) return;
+    const now = performance.now() - startTime;
+    let target = null, diff = Infinity;
+    notes.forEach(n => { if(!n.hit && !n.missed){ const d = Math.abs(now - n.time); if(d < diff){ diff=d; target=n; } } });
+    if(!target || diff > 210){ combo=0; comboEl.textContent=0; showJudge('MISS…'); beep(180,.08,'sawtooth',.035); return; }
+    target.hit = true; target.el?.remove();
+    let add = 50, word = 'GOOD!';
+    if(diff <= 70){ add=120; word='PERFECT!!'; }
+    else if(diff <= 130){ add=80; word='GREAT!'; }
+    combo++; score += add + Math.min(combo*2, 60);
+    scoreEl.textContent = score; comboEl.textContent = combo; showJudge(word); beep(target.d==='up'?1046:target.d==='mute'?520:784,.045,'triangle',.07);
+    pawBtn.classList.remove('hit'); void pawBtn.offsetWidth; pawBtn.classList.add('hit');
+  }
+  function loop(){
+    if(!running) return;
+    const now = performance.now() - startTime; const w = stage.clientWidth; const judgeX = w * .5; const travelMs = 2300;
+    notes.forEach(n => {
+      if(!n.el || n.hit) return;
+      const progress = (now - n.spawn) / travelMs; const x = -80 + progress * (judgeX + 80);
+      n.el.style.left = `${x}px`;
+      if(!n.missed && now - n.time > 220){ n.missed = true; combo=0; comboEl.textContent=0; showJudge('MISS…'); n.el.remove(); }
+    });
+    rafId = requestAnimationFrame(loop);
+  }
+  function start(){
+    stop(); running = true; ensureAudio(); resetScore(); const {beatMs,totalMs} = makeNotes(); const travelMs = 2300;
+    countdown.textContent = '3'; beep(660,.06);
+    setTimer(()=>{ if(running){ countdown.textContent='2'; beep(660,.06); }}, 700);
+    setTimer(()=>{ if(running){ countdown.textContent='1'; beep(660,.06); }}, 1400);
+    setTimer(()=>{ if(!running) return; countdown.textContent='GO!'; beep(990,.08); startTime = performance.now(); notes.forEach(n=>drawNote(n,travelMs)); loop();
+      for(let t=0; t<=totalMs; t+=beatMs) setTimer(()=>beep(440,.035,'square',.025), t);
+      endTimer = setTimer(()=>stop(false), totalMs + 1300);
+    }, 2100);
+    setTimer(()=>{ if(running && countdown.textContent==='GO!') countdown.textContent=''; }, 2600);
+  }
+  function stop(resetMessage=true){
+    running = false; cancelAnimationFrame(rafId); clearAllTimers(); document.querySelectorAll('.note').forEach(e=>e.remove()); notes=[];
+    if(audioCtx && audioCtx.state !== 'closed') audioCtx.suspend().catch(()=>{});
+    countdown.textContent = resetMessage ? 'Ready?' : 'Finish!'; judgeText.textContent='';
+    if(score > best){ best = score; localStorage.setItem('grmBest', best); bestEl.textContent = best; }
+  }
+  startBtn.addEventListener('click', start);
+  stopBtn.addEventListener('click', () => stop(true));
+  pawBtn.addEventListener('pointerdown', hit);
+  window.addEventListener('keydown', e => { if(e.code === 'Space'){ e.preventDefault(); hit(); } });
+  document.addEventListener('visibilitychange', () => { if(document.hidden) stop(true); });
+})();
 </script>
 </body>
 </html>
