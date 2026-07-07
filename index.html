@@ -77,21 +77,21 @@
   <div class="app">
     <div class="shell">
     <header>
-      <h1>🎸 Rhythm Master</h1>
-      <div class="subtitle">正しいタイミングで🐾を押そう！</div>
+      <h1>ð¸ Rhythm Master</h1>
+      <div class="subtitle">æ­£ããã¿ã¤ãã³ã°ã§ð¾ãæ¼ããï¼</div>
     </header>
 
     <section class="panel controls">
       <div><label for="bpm">BPM</label><input id="bpm" type="number" min="50" max="220" value="100"></div>
-      <div><label for="pattern">リズム</label><select id="pattern">
-        <option value="eighth">8分：↓ ↑ ↓ ↑</option>
-        <option value="offbeat">裏打ち：休 ↑ 休 ↑</option>
-        <option value="sixteenth">16分：↓ ↑ ↓ ↑</option>
-        <option value="shuffle">シャッフル：↓ ↑ ↓ ↑</option>
-        <option value="mute">カッティング：↓ × ↑ ×</option>
+      <div><label for="pattern">ãªãºã </label><select id="pattern">
+        <option value="eighth">8åï¼â â â â</option>
+        <option value="offbeat">è£æã¡ï¼ä¼ â ä¼ â</option>
+        <option value="sixteenth">16åï¼â â â â</option>
+        <option value="shuffle">ã·ã£ããã«ï¼â â â â</option>
+        <option value="mute">ã«ããã£ã³ã°ï¼â Ã â Ã</option>
       </select></div>
-      <div><label for="bars">小節数</label><select id="bars"><option>2</option><option selected>4</option><option>8</option></select></div>
-      <div class="buttons"><button id="startBtn">スタート</button><button id="stopBtn">停止</button></div>
+      <div><label for="bars">å°ç¯æ°</label><select id="bars"><option>2</option><option selected>4</option><option>8</option></select></div>
+      <div class="buttons"><button id="startBtn">ã¹ã¿ã¼ã</button><button id="stopBtn">åæ­¢</button></div>
     </section>
 
     <section class="scorebar">
@@ -105,9 +105,9 @@
       <div class="judgeLine"></div>
       <div class="countdown" id="countdown">Ready?</div>
       <div class="judge" id="judgeText"></div>
-      <div class="pawWrap"><button id="pawBtn" aria-label="リズムに合わせて押す">🐾</button><div class="hint">音符が線に来たら🐾をタップ！</div></div>
+      <div class="pawWrap"><button id="pawBtn" aria-label="ãªãºã ã«åããã¦æ¼ã">ð¾</button><div class="hint">é³ç¬¦ãç·ã«æ¥ããð¾ãã¿ããï¼</div></div>
     </main>
-    <div class="footer">iPhoneは共有ボタン →「ホーム画面に追加」でアプリ化できます</div>
+    <div class="footer">iPhoneã¯å±æãã¿ã³ âããã¼ã ç»é¢ã«è¿½å ãã§ã¢ããªåã§ãã¾ã</div>
     </div>
   </div>
 <script>
@@ -142,8 +142,8 @@
     shuffle:  [{b:0,d:'down'}, {b:2/3,d:'up'}, {b:1,d:'down'}, {b:1+2/3,d:'up'}, {b:2,d:'down'}, {b:2+2/3,d:'up'}, {b:3,d:'down'}, {b:3+2/3,d:'up'}],
     mute:     [{b:0,d:'down'}, {b:.5,d:'mute'}, {b:1,d:'up'}, {b:1.5,d:'mute'}, {b:2,d:'down'}, {b:2.5,d:'mute'}, {b:3,d:'up'}, {b:3.5,d:'mute'}]
   };
-  const icons = {down:'♪', up:'♫', mute:'♬'};
-  const arrows = {down:'↓', up:'↑', mute:'×'};
+  const icons = {down:'âª', up:'â«', mute:'â¬'};
+  const arrows = {down:'â', up:'â', mute:'Ã'};
 
   function setTimer(fn, ms){ const id = setTimeout(fn, ms); timers.push(id); return id; }
   function clearAllTimers(){ timers.forEach(clearTimeout); timers = []; clearTimeout(endTimer); }
@@ -172,7 +172,7 @@
     const now = performance.now() - startTime;
     let target = null, diff = Infinity;
     notes.forEach(n => { if(!n.hit && !n.missed){ const d = Math.abs(now - n.time); if(d < diff){ diff=d; target=n; } } });
-    if(!target || diff > 210){ combo=0; comboEl.textContent=0; showJudge('MISS…'); beep(180,.08,'sawtooth',.035); return; }
+    if(!target || diff > 210){ combo=0; comboEl.textContent=0; showJudge('MISSâ¦'); beep(180,.08,'sawtooth',.035); return; }
     target.hit = true; target.el?.remove();
     let add = 50, word = 'GOOD!';
     if(diff <= 70){ add=120; word='PERFECT!!'; }
@@ -188,7 +188,7 @@
       if(!n.el || n.hit) return;
       const progress = (now - n.spawn) / travelMs; const x = -80 + progress * (judgeX + 80);
       n.el.style.left = `${x}px`;
-      if(!n.missed && now - n.time > 220){ n.missed = true; combo=0; comboEl.textContent=0; showJudge('MISS…'); n.el.remove(); }
+      if(!n.missed && now - n.time > 220){ n.missed = true; combo=0; comboEl.textContent=0; showJudge('MISSâ¦'); n.el.remove(); }
     });
     rafId = requestAnimationFrame(loop);
   }
@@ -218,3 +218,4 @@
 </script>
 </body>
 </html>
+
