@@ -1,219 +1,312 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#ffc857" />
-  <title>Rhythm Master</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@700;800;900&family=Nunito:wght@800;900&display=swap');
-    :root{
-      --purple:#37285f;
-      --lav:#8376a8;
-      --cream:#fff9ef;
-      --cream2:#fff1d2;
-      --yellow:#ffdc5c;
-      --yellow2:#ffc857;
-      --pink:#ef6375;
-      --blue:#5aa6e8;
-      --mint:#b8d7a6;
-      --violet:#9174e6;
-      --line:#37285f;
-      --shadow:0 9px 0 rgba(55,40,95,.98),0 18px 28px rgba(55,40,95,.18);
-    }
-    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
-    body{
-      margin:0; min-height:100svh;
-      font-family:"M PLUS Rounded 1c","Nunito",-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;
-      background:
-        repeating-linear-gradient(135deg, rgba(255,203,92,.28) 0 34px, rgba(255,180,66,.24) 34px 68px),
-        linear-gradient(160deg,#ffd27b 0%,#ffb64d 100%);
-      color:var(--purple); overflow-x:hidden; overflow-y:auto;
-    }
-    .app{width:min(930px,100%); min-height:100svh; margin:0 auto; padding:8px 10px 12px; display:flex; flex-direction:column; gap:8px}
-    .shell{background:var(--cream); border:7px solid var(--purple); border-radius:30px; padding:10px 10px 12px; box-shadow:0 10px 0 rgba(55,40,95,.18)}
-    header{display:grid; grid-template-columns:1fr; align-items:center; gap:4px; margin-bottom:7px}
-    h1{font-size:clamp(27px,7.2vw,50px); margin:0; letter-spacing:.04em; color:var(--purple); line-height:1.05; font-weight:900; text-align:center}
-    .subtitle{font-size:clamp(15px,4vw,24px); color:var(--lav); text-align:center; font-weight:900; line-height:1.25; margin:2px 0 6px}
-    .panel{background:var(--cream2); border:5px solid var(--purple); border-radius:24px; box-shadow:0 6px 0 rgba(55,40,95,.98); padding:9px}
-    .controls{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; align-items:end}
-    label{font-size:12px; font-weight:900; display:block; margin:0 0 4px 6px; color:var(--lav)}
-    select,input{width:100%; border:5px solid var(--purple); border-radius:18px; padding:9px 8px; background:#fff; color:var(--purple); font-size:16px; font-weight:900; outline:none; font-family:inherit; min-height:50px}
-    .buttons{display:grid; grid-template-columns:2fr 1fr; gap:8px; grid-column:1/-1}
-    button{border:5px solid var(--purple); border-radius:19px; padding:10px 10px; font-size:20px; font-weight:900; color:var(--purple); box-shadow:0 7px 0 rgba(55,40,95,.98); cursor:pointer; touch-action:manipulation; font-family:inherit}
-    button:active{transform:translateY(5px); box-shadow:0 4px 0 rgba(55,40,95,.98)}
-    #startBtn{background:var(--yellow); font-size:clamp(23px,6.3vw,38px); min-height:58px}
-    #stopBtn{background:#fff; color:var(--purple); min-height:58px}
-    .stage{position:relative; height:clamp(275px,43svh,430px); overflow:hidden; background:linear-gradient(#fffefb,#fff8ef); border-radius:26px; border:5px solid var(--purple); box-shadow:0 6px 0 rgba(55,40,95,.98); margin-top:10px}
-    .lane{position:absolute; left:0; right:0; top:35%; height:92px; transform:translateY(-50%); background:linear-gradient(90deg,transparent,rgba(255,220,92,.32),transparent); border-top:4px solid rgba(55,40,95,.72); border-bottom:4px solid rgba(55,40,95,.72)}
-    .judgeLine{position:absolute; left:50%; top:18%; bottom:38%; width:6px; border-radius:6px; background:var(--pink); box-shadow:0 0 0 7px rgba(239,99,117,.14)}
-    .note{position:absolute; top:35%; width:60px; height:78px; margin-left:-30px; transform:translateY(-50%); display:grid; place-items:center; filter:drop-shadow(0 7px 7px rgba(55,40,95,.20))}
-    .note>div{width:58px;height:70px;border:5px solid var(--purple);border-radius:999px;background:#fff;display:grid;place-items:center;padding-top:2px}
-    .note .symbol{font-size:30px; line-height:1; color:var(--purple)}
-    .note .arrow{font-size:25px; font-weight:1000; margin-top:-5px; color:var(--pink); text-shadow:1px 2px 0 #fff}
-    .note.up .arrow{color:var(--blue)}.note.mute .arrow{color:var(--violet)}.note.rest{opacity:.35}
-    .pawWrap{position:absolute; left:0; right:0; bottom:12px; display:grid; place-items:center; gap:5px; pointer-events:none}
-    #pawBtn{pointer-events:auto; width:min(150px,38vw); aspect-ratio:1/1; border-radius:32px; background:linear-gradient(#fff,#fff1d2); border:6px solid var(--purple); box-shadow:0 8px 0 rgba(55,40,95,.98),0 16px 20px rgba(55,40,95,.20); font-size:62px; display:grid; place-items:center; padding:0}
-    #pawBtn.hit{animation:pop .18s ease-out}@keyframes pop{50%{transform:scale(1.08)}}
-    .hint{font-size:11px; font-weight:900; background:#fff; border-radius:999px; padding:5px 10px; border:3px solid var(--purple); color:var(--lav); text-align:center}
-    .countdown,.judge{position:absolute; inset:0; display:grid; place-items:center; text-align:center; pointer-events:none; font-weight:1000}
-    .countdown{font-size:clamp(58px,18vw,130px); color:var(--purple); text-shadow:4px 6px 0 #fff; z-index:5}.countdown:empty{display:none}
-    .judge{align-items:start; padding-top:22%; font-size:clamp(32px,10vw,70px); color:var(--pink); text-shadow:3px 4px 0 #fff; z-index:4}.judge:empty{display:none}
-    .scorebar{display:grid; grid-template-columns:repeat(3,1fr); gap:7px; text-align:center; margin-top:10px}
-    .scorebox{background:#fff; border:4px solid var(--purple); border-radius:17px; padding:5px 3px; font-size:13px; font-weight:1000; box-shadow:0 4px 0 rgba(55,40,95,.98)}.scorebox span{display:block; color:var(--pink); font-size:20px; line-height:1.1}
-    .footer{font-size:12px; text-align:center; opacity:.75; font-weight:900; margin-top:12px}
-    
-    @media (max-height:740px){
-      .app{padding:5px 8px 8px}.shell{padding:8px;border-width:6px;border-radius:26px}
-      h1{font-size:clamp(24px,6.5vw,40px)}.subtitle{font-size:14px;margin-bottom:4px}
-      .panel{padding:7px}.controls{gap:6px}label{font-size:11px}select,input{min-height:44px;padding:6px;font-size:14px;border-width:4px}
-      #startBtn,#stopBtn{min-height:48px;font-size:20px}.scorebar{margin-top:7px}.stage{height:38svh;min-height:250px;margin-top:8px}
-      #pawBtn{width:min(132px,35vw);font-size:54px}.hint{display:none}
-    }
-
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#ffc857">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Rhythm Master">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Rhythm Master</title>
+<style>
+:root{--bg:#fff4dd;--cream:#fffaf0;--yellow:#ffc857;--purple:#4b3476;--pink:#ff7aa8;--ink:#33224f;--good:#41c886;--bad:#ff5a72}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:linear-gradient(160deg,#fff8e8,#ffe7b2 58%,#d9c4ff);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Hiragino Maru Gothic ProN","Hiragino Sans","Yu Gothic UI","Yu Gothic",sans-serif;font-weight:900;color:var(--ink);touch-action:manipulation}
+.app{height:100dvh;max-width:480px;margin:0 auto;padding:env(safe-area-inset-top) 14px env(safe-area-inset-bottom);display:flex;flex-direction:column;gap:8px}
+.top{text-align:center;padding-top:8px}
+.title{font-size:30px;color:var(--purple);letter-spacing:.5px;text-shadow:0 3px 0 #fff,0 7px 13px #9b7a4280}
+.sub{font-size:14px;color:#6b568a;text-shadow:0 2px 0 #fff}
+.panel{background:rgba(255,250,240,.9);border:3px solid #fff;border-radius:28px;box-shadow:0 10px 0 #d7b66b,0 18px 28px #855b2080,inset 0 -6px 0 #ffe2a3;padding:10px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.stat{background:#fff;border-radius:18px;text-align:center;padding:7px 3px;box-shadow:inset 0 -4px 0 #f2d88f,0 3px 0 #e0bb69;font-size:11px}
+.stat b{display:block;font-size:17px;color:var(--purple);line-height:1.05}
+.stage{position:relative;flex:1;min-height:230px;overflow:hidden;background:linear-gradient(#fffaf2,#fff0c9);border:4px solid #fff;border-radius:30px;box-shadow:inset 0 -8px 0 #f0c86c,0 8px 0 #cda459}
+.count{position:absolute;inset:0;display:none;place-items:center;z-index:5;font-size:64px;color:var(--pink);text-shadow:0 5px 0 #fff,0 12px 24px #7d3f9080}
+.line{position:absolute;left:26%;top:28px;bottom:54px;width:6px;border-radius:10px;background:var(--pink);box-shadow:0 0 0 5px #fff,0 0 18px #ff75a8}
+.staff{position:absolute;left:0;right:0;top:58px;height:92px}
+.staff i{position:absolute;left:0;right:0;height:3px;background:#8d79aa;opacity:.9}
+.staff i:nth-child(1){top:0}.staff i:nth-child(2){top:20px}.staff i:nth-child(3){top:40px}.staff i:nth-child(4){top:60px}.staff i:nth-child(5){top:80px}
+.note{position:absolute;width:38px;height:64px;transform:translate(-50%,-50%);will-change:left}
+.note svg{width:38px;height:48px;filter:drop-shadow(0 3px 0 #fff)}
+.mark{font-size:23px;text-align:center;line-height:18px;color:var(--purple);text-shadow:0 2px 0 #fff}
+.ghost{opacity:.35}
+.judge{position:absolute;left:0;right:0;bottom:86px;text-align:center;font-size:32px;color:var(--purple);text-shadow:0 4px 0 #fff,0 8px 18px #6a4a9d80;opacity:0;transform:scale(.6)}
+.judge.show{animation:pop .45s ease}
+.pawWrap{display:grid;place-items:center;padding:3px 0}
+.paw{width:126px;height:94px;border:0;border-radius:50px;background:linear-gradient(#fff,#ffe0f0);box-shadow:0 9px 0 #cc8aa9,0 16px 22px #7b507780,inset 0 -8px 0 #ffc1db;color:#4b3476;font-size:50px;line-height:1;cursor:pointer}
+.paw:active,.paw.hit{transform:translateY(6px) scale(1.06);box-shadow:0 3px 0 #cc8aa9,0 9px 15px #7b507780,inset 0 -5px 0 #ffc1db}
+.paw.good{animation:puni .32s ease}
+.paw.bad{animation:shake .32s ease}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.btn,select,input{border:0;border-radius:22px;font:inherit;font-weight:900;color:var(--ink);background:#fff7e8;box-shadow:0 6px 0 #cba456,inset 0 -4px 0 #f2d48c;padding:12px 10px;min-width:0}
+.btn.primary{background:linear-gradient(#ffe27a,#ffc857);color:#4b3476}
+.btn.stop{background:linear-gradient(#f2d7ff,#cda9ff)}
+.opts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px}
+.field{background:#fffdf7;border-radius:18px;padding:6px;box-shadow:inset 0 -4px 0 #f0d8a6}
+.field label{display:block;font-size:10px;color:#7a6597;text-align:center}
+.field select,.field input{width:100%;padding:6px 2px;text-align:center;background:transparent;box-shadow:none;border-radius:0;font-size:15px}
+.help{text-align:center;font-size:11px;color:#745e8d;line-height:1.25}
+.flash{position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 26% 42%,#fff 0,#fff8 18%,transparent 36%);opacity:0}
+.flash.on{animation:flash .25s ease}
+@keyframes pop{0%{opacity:0;transform:scale(.5) translateY(20px)}35%{opacity:1;transform:scale(1.2)}100%{opacity:0;transform:scale(1) translateY(-20px)}}
+@keyframes puni{0%,100%{transform:scale(1)}45%{transform:scale(1.16,.86)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+@keyframes flash{0%{opacity:0}40%{opacity:1}100%{opacity:0}}
+@media(max-height:700px){.title{font-size:24px}.panel{padding:7px}.stage{min-height:190px}.paw{width:112px;height:78px;font-size:42px}.judge{bottom:70px;font-size:28px}.btn,select,input{padding:9px 6px}}
+</style>
 </head>
 <body>
-  <div class="app">
-    <div class="shell">
-    <header>
-      <h1>ð¸ Rhythm Master</h1>
-      <div class="subtitle">æ­£ããã¿ã¤ãã³ã°ã§ð¾ãæ¼ããï¼</div>
-    </header>
+<main class="app">
+<header class="top">
+<div class="title">🎸 Rhythm Master</div>
+<div class="sub">正しいタイミングで🐾を押そう！</div>
+</header>
 
-    <section class="panel controls">
-      <div><label for="bpm">BPM</label><input id="bpm" type="number" min="50" max="220" value="100"></div>
-      <div><label for="pattern">ãªãºã </label><select id="pattern">
-        <option value="eighth">8åï¼â â â â</option>
-        <option value="offbeat">è£æã¡ï¼ä¼ â ä¼ â</option>
-        <option value="sixteenth">16åï¼â â â â</option>
-        <option value="shuffle">ã·ã£ããã«ï¼â â â â</option>
-        <option value="mute">ã«ããã£ã³ã°ï¼â Ã â Ã</option>
-      </select></div>
-      <div><label for="bars">å°ç¯æ°</label><select id="bars"><option>2</option><option selected>4</option><option>8</option></select></div>
-      <div class="buttons"><button id="startBtn">ã¹ã¿ã¼ã</button><button id="stopBtn">åæ­¢</button></div>
-    </section>
+<section class="panel stats">
+<div class="stat">SCORE<b id="score">0</b></div>
+<div class="stat">COMBO<b id="combo">0</b></div>
+<div class="stat">BEST<b id="best">0</b></div>
+<div class="stat">判定<b id="last">-</b></div>
+</section>
 
-    <section class="scorebar">
-      <div class="scorebox">SCORE<span id="score">0</span></div>
-      <div class="scorebox">COMBO<span id="combo">0</span></div>
-      <div class="scorebox">BEST<span id="best">0</span></div>
-    </section>
+<section class="stage" id="stage">
+<div class="count" id="count">3</div>
+<div class="line"></div>
+<div class="staff"><i></i><i></i><i></i><i></i><i></i></div>
+<div class="judge" id="judge">Perfect!!</div>
+<div class="flash" id="flash"></div>
+</section>
 
-    <main class="stage" id="stage">
-      <div class="lane"></div>
-      <div class="judgeLine"></div>
-      <div class="countdown" id="countdown">Ready?</div>
-      <div class="judge" id="judgeText"></div>
-      <div class="pawWrap"><button id="pawBtn" aria-label="ãªãºã ã«åããã¦æ¼ã">ð¾</button><div class="hint">é³ç¬¦ãç·ã«æ¥ããð¾ãã¿ããï¼</div></div>
-    </main>
-    <div class="footer">iPhoneã¯å±æãã¿ã³ âããã¼ã ç»é¢ã«è¿½å ãã§ã¢ããªåã§ãã¾ã</div>
-    </div>
-  </div>
+<div class="pawWrap">
+<button class="paw" id="paw" aria-label="押す">🐾</button>
+</div>
+
+<section class="controls">
+<button class="btn primary" id="start">START</button>
+<button class="btn stop" id="stop">STOP</button>
+</section>
+
+<section class="opts">
+<div class="field"><label>BPM</label><input id="bpm" type="number" min="60" max="180" value="96"></div>
+<div class="field"><label>リズム</label><select id="pattern"><option value="quarter">4分</option><option value="eighth">8分</option><option value="offbeat">裏打ち</option><option value="sixteenth">16分</option><option value="shuffle">シャッフル</option><option value="cutting">カッティング</option></select></div>
+<div class="field"><label>小節</label><select id="bars"><option>4</option><option>8</option><option>12</option></select></div>
+</section>
+
+<div class="help">音が出ない時は、最初にスタートか🐾を1回タップしてください。停止で音・判定・タイマー全部止まります。</div>
+</main>
+
 <script>
-(() => {
-  const stage = document.getElementById('stage');
-  const startBtn = document.getElementById('startBtn');
-  const stopBtn = document.getElementById('stopBtn');
-  const pawBtn = document.getElementById('pawBtn');
-  const bpmInput = document.getElementById('bpm');
-  const patternSelect = document.getElementById('pattern');
-  const barsSelect = document.getElementById('bars');
-  const countdown = document.getElementById('countdown');
-  const judgeText = document.getElementById('judgeText');
-  const scoreEl = document.getElementById('score');
-  const comboEl = document.getElementById('combo');
-  const bestEl = document.getElementById('best');
+(()=>{
+const $=id=>document.getElementById(id);
+const stage=$('stage'),paw=$('paw'),judge=$('judge'),flash=$('flash'),count=$('count');
+const scoreEl=$('score'),comboEl=$('combo'),bestEl=$('best'),lastEl=$('last');
+const bpmEl=$('bpm'),patEl=$('pattern'),barsEl=$('bars');
+let ac,master,running=false,startT=0,raf=0,timers=[],notes=[],score=0,combo=0;
+let best=+localStorage.rhythmMasterBest||0,look=2.6,speed=0;
+bestEl.textContent=best;
 
-  let audioCtx = null;
-  let running = false;
-  let rafId = 0;
-  let timers = [];
-  let notes = [];
-  let startTime = 0;
-  let score = 0, combo = 0, best = Number(localStorage.getItem('grmBest') || 0);
-  let endTimer = 0;
-  bestEl.textContent = best;
+const W=()=>stage.clientWidth;
+const lineX=()=>W()*.26;
 
-  const PATTERNS = {
-    eighth:   [{b:0,d:'down'}, {b:.5,d:'up'}, {b:1,d:'down'}, {b:1.5,d:'up'}, {b:2,d:'down'}, {b:2.5,d:'up'}, {b:3,d:'down'}, {b:3.5,d:'up'}],
-    offbeat:  [{b:.5,d:'up'}, {b:1.5,d:'up'}, {b:2.5,d:'up'}, {b:3.5,d:'up'}],
-    sixteenth:[{b:0,d:'down'}, {b:.25,d:'up'}, {b:.5,d:'down'}, {b:.75,d:'up'}, {b:1,d:'down'}, {b:1.25,d:'up'}, {b:1.5,d:'down'}, {b:1.75,d:'up'}, {b:2,d:'down'}, {b:2.25,d:'up'}, {b:2.5,d:'down'}, {b:2.75,d:'up'}, {b:3,d:'down'}, {b:3.25,d:'up'}, {b:3.5,d:'down'}, {b:3.75,d:'up'}],
-    shuffle:  [{b:0,d:'down'}, {b:2/3,d:'up'}, {b:1,d:'down'}, {b:1+2/3,d:'up'}, {b:2,d:'down'}, {b:2+2/3,d:'up'}, {b:3,d:'down'}, {b:3+2/3,d:'up'}],
-    mute:     [{b:0,d:'down'}, {b:.5,d:'mute'}, {b:1,d:'up'}, {b:1.5,d:'mute'}, {b:2,d:'down'}, {b:2.5,d:'mute'}, {b:3,d:'up'}, {b:3.5,d:'mute'}]
-  };
-  const icons = {down:'âª', up:'â«', mute:'â¬'};
-  const arrows = {down:'â', up:'â', mute:'Ã'};
+function audio(){
+ if(!ac){
+  ac=new(window.AudioContext||window.webkitAudioContext)();
+  master=ac.createGain();
+  master.gain.value=.35;
+  master.connect(ac.destination);
+ }
+ if(ac.state==='suspended')ac.resume();
+}
 
-  function setTimer(fn, ms){ const id = setTimeout(fn, ms); timers.push(id); return id; }
-  function clearAllTimers(){ timers.forEach(clearTimeout); timers = []; clearTimeout(endTimer); }
-  function ensureAudio(){ if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if(audioCtx.state === 'suspended') audioCtx.resume(); }
-  function beep(freq=880, dur=.045, type='sine', vol=.06){
-    if(!running || !audioCtx) return;
-    const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-    osc.type = type; osc.frequency.value = freq; gain.gain.value = vol;
-    osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + dur);
+function beep(freq=880,dur=.06,type='sine',vol=.45,when=0){
+ audio();
+ let t=ac.currentTime+when,o=ac.createOscillator(),g=ac.createGain();
+ o.type=type;
+ o.frequency.value=freq;
+ g.gain.setValueAtTime(0,t);
+ g.gain.linearRampToValueAtTime(vol,t+.005);
+ g.gain.exponentialRampToValueAtTime(.001,t+dur);
+ o.connect(g);
+ g.connect(master);
+ o.start(t);
+ o.stop(t+dur+.02);
+}
+
+function makePattern(kind,bars,bpm){
+ let beat=60/bpm,arr=[];
+ for(let bar=0;bar<bars;bar++){
+  let base=bar*4*beat;
+  if(kind==='quarter')for(let i=0;i<4;i++)arr.push([base+i*beat,i%2?'↑':'↓','n']);
+  if(kind==='eighth')for(let i=0;i<8;i++)arr.push([base+i*beat/2,i%2?'↑':'↓','n']);
+  if(kind==='offbeat')for(let i=0;i<4;i++)arr.push([base+i*beat+beat/2,'↑','n']);
+  if(kind==='sixteenth')for(let i=0;i<16;i++)arr.push([base+i*beat/4,i%2?'↑':'↓','n']);
+  if(kind==='shuffle')for(let i=0;i<4;i++){arr.push([base+i*beat,'↓','n']);arr.push([base+i*beat+beat*2/3,'↑','n']);}
+  if(kind==='cutting')for(let i=0;i<8;i++){let mute=i===2||i===6;arr.push([base+i*beat/2,mute?'×':(i%2?'↑':'↓'),mute?'r':'n']);}
+ }
+ return arr.map((a,i)=>({id:i,t:a[0],mark:a[1],type:a[2],hit:false,miss:false,el:null}));
+}
+
+function noteSVG(rest=false){
+ return rest
+ ? `<svg viewBox="0 0 40 50"><path d="M19 6c9 2 12 11 6 18l-7 8 12 5-4 6-18-8 10-14c4-5 2-8-3-10z" fill="#7b62a6"/></svg>`
+ : `<svg viewBox="0 0 40 50"><ellipse cx="15" cy="35" rx="11" ry="8" transform="rotate(-20 15 35)" fill="#4b3476"/><rect x="24" y="7" width="5" height="29" rx="2" fill="#4b3476"/><path d="M27 7c8 4 10 11 4 16" fill="none" stroke="#4b3476" stroke-width="5" stroke-linecap="round"/></svg>`;
+}
+
+function drawNotes(){
+ notes.forEach(n=>{
+  let d=document.createElement('div');
+  d.className='note';
+  d.innerHTML=noteSVG(n.type==='r')+`<div class="mark">${n.mark}</div>`;
+  stage.appendChild(d);
+  n.el=d;
+ });
+}
+
+function clearNotes(){
+ notes.forEach(n=>n.el&&n.el.remove());
+ notes=[];
+}
+
+function reset(){
+ score=0;combo=0;
+ scoreEl.textContent=0;
+ comboEl.textContent=0;
+ lastEl.textContent='-';
+ clearNotes();
+}
+
+function show(txt,cls){
+ judge.textContent=txt;
+ judge.className='judge show';
+ lastEl.textContent=txt.replace('!!','');
+ paw.classList.remove('good','bad','hit');
+ void paw.offsetWidth;
+ paw.classList.add(cls==='miss'?'bad':'good','hit');
+ if(cls!=='miss')flash.className='flash on';
+ setTimeout(()=>{
+  judge.className='judge';
+  paw.classList.remove('hit','good','bad');
+  flash.className='flash';
+ },420);
+}
+
+function updateScore(add){
+ score+=add;
+ scoreEl.textContent=score;
+ if(score>best){
+  best=score;
+  localStorage.rhythmMasterBest=best;
+  bestEl.textContent=best;
+ }
+}
+
+function press(){
+ if(!running)return;
+ audio();
+ beep(360,.035,'triangle',.25);
+ let now=(performance.now()-startT)/1000;
+ let target=null,err=99;
+ notes.forEach(n=>{
+  if(!n.hit&&!n.miss){
+   let e=Math.abs(now-n.t);
+   if(e<err){err=e;target=n;}
   }
-  function resetScore(){ score=0; combo=0; scoreEl.textContent=0; comboEl.textContent=0; }
-  function makeNotes(){
-    const bpm = Number(bpmInput.value) || 100; const beatMs = 60000 / bpm; const bars = Number(barsSelect.value);
-    const base = PATTERNS[patternSelect.value]; notes = [];
-    for(let bar=0; bar<bars; bar++) base.forEach(n => notes.push({...n, time:(bar*4+n.b)*beatMs, hit:false, missed:false}));
-    return {beatMs, totalMs: bars*4*beatMs};
+ });
+ if(!target||err>.22){
+  combo=0;
+  comboEl.textContent=0;
+  show('Miss...','miss');
+  return;
+ }
+ target.hit=true;
+ target.el.classList.add('ghost');
+ if(err<.055){
+  combo++;
+  updateScore(100+combo*3);
+  show('Perfect!!','perfect');
+ }else if(err<.12){
+  combo++;
+  updateScore(70+combo*2);
+  show('Great!','great');
+ }else{
+  combo++;
+  updateScore(40);
+  show('Good!','good');
+ }
+ comboEl.textContent=combo;
+}
+
+function loop(){
+ if(!running)return;
+ let now=(performance.now()-startT)/1000;
+ notes.forEach(n=>{
+  if(n.el){
+   let x=lineX()+(n.t-now)*speed;
+   let y=104+(n.id%4-1.5)*5;
+   n.el.style.left=x+'px';
+   n.el.style.top=y+'px';
+   if(!n.hit&&!n.miss&&now-n.t>.24){
+    n.miss=true;
+    n.el.classList.add('ghost');
+    combo=0;
+    comboEl.textContent=0;
+    show('Miss...','miss');
+   }
   }
-  function drawNote(n, travelMs){
-    const el = document.createElement('div'); el.className = `note ${n.d}`;
-    el.innerHTML = `<div><div class="symbol">${icons[n.d]}</div><div class="arrow">${arrows[n.d]}</div></div>`;
-    stage.appendChild(el); n.el = el; n.spawn = n.time - travelMs;
-  }
-  function showJudge(text){ judgeText.textContent = text; setTimer(()=>{ if(judgeText.textContent === text) judgeText.textContent=''; }, 450); }
-  function hit(){
-    if(!running) return;
-    const now = performance.now() - startTime;
-    let target = null, diff = Infinity;
-    notes.forEach(n => { if(!n.hit && !n.missed){ const d = Math.abs(now - n.time); if(d < diff){ diff=d; target=n; } } });
-    if(!target || diff > 210){ combo=0; comboEl.textContent=0; showJudge('MISSâ¦'); beep(180,.08,'sawtooth',.035); return; }
-    target.hit = true; target.el?.remove();
-    let add = 50, word = 'GOOD!';
-    if(diff <= 70){ add=120; word='PERFECT!!'; }
-    else if(diff <= 130){ add=80; word='GREAT!'; }
-    combo++; score += add + Math.min(combo*2, 60);
-    scoreEl.textContent = score; comboEl.textContent = combo; showJudge(word); beep(target.d==='up'?1046:target.d==='mute'?520:784,.045,'triangle',.07);
-    pawBtn.classList.remove('hit'); void pawBtn.offsetWidth; pawBtn.classList.add('hit');
-  }
-  function loop(){
-    if(!running) return;
-    const now = performance.now() - startTime; const w = stage.clientWidth; const judgeX = w * .5; const travelMs = 2300;
-    notes.forEach(n => {
-      if(!n.el || n.hit) return;
-      const progress = (now - n.spawn) / travelMs; const x = -80 + progress * (judgeX + 80);
-      n.el.style.left = `${x}px`;
-      if(!n.missed && now - n.time > 220){ n.missed = true; combo=0; comboEl.textContent=0; showJudge('MISSâ¦'); n.el.remove(); }
-    });
-    rafId = requestAnimationFrame(loop);
-  }
-  function start(){
-    stop(); running = true; ensureAudio(); resetScore(); const {beatMs,totalMs} = makeNotes(); const travelMs = 2300;
-    countdown.textContent = '3'; beep(660,.06);
-    setTimer(()=>{ if(running){ countdown.textContent='2'; beep(660,.06); }}, 700);
-    setTimer(()=>{ if(running){ countdown.textContent='1'; beep(660,.06); }}, 1400);
-    setTimer(()=>{ if(!running) return; countdown.textContent='GO!'; beep(990,.08); startTime = performance.now(); notes.forEach(n=>drawNote(n,travelMs)); loop();
-      for(let t=0; t<=totalMs; t+=beatMs) setTimer(()=>beep(440,.035,'square',.025), t);
-      endTimer = setTimer(()=>stop(false), totalMs + 1300);
-    }, 2100);
-    setTimer(()=>{ if(running && countdown.textContent==='GO!') countdown.textContent=''; }, 2600);
-  }
-  function stop(resetMessage=true){
-    running = false; cancelAnimationFrame(rafId); clearAllTimers(); document.querySelectorAll('.note').forEach(e=>e.remove()); notes=[];
-    if(audioCtx && audioCtx.state !== 'closed') audioCtx.suspend().catch(()=>{});
-    countdown.textContent = resetMessage ? 'Ready?' : 'Finish!'; judgeText.textContent='';
-    if(score > best){ best = score; localStorage.setItem('grmBest', best); bestEl.textContent = best; }
-  }
-  startBtn.addEventListener('click', start);
-  stopBtn.addEventListener('click', () => stop(true));
-  pawBtn.addEventListener('pointerdown', hit);
-  window.addEventListener('keydown', e => { if(e.code === 'Space'){ e.preventDefault(); hit(); } });
-  document.addEventListener('visibilitychange', () => { if(document.hidden) stop(true); });
+ });
+ let end=notes.length?notes[notes.length-1].t+1.2:0;
+ if(now>end)stop(false);
+ raf=requestAnimationFrame(loop);
+}
+
+function metro(duration,bpm){
+ let beat=60/bpm;
+ for(let t=0;t<duration;t+=beat){
+  let id=setTimeout(()=>beep(880,.045,'square',.22),t*1000);
+  timers.push(id);
+ }
+}
+
+function start(){
+ stop(false);
+ audio();
+ reset();
+ let bpm=Math.max(60,Math.min(180,+bpmEl.value||96));
+ let bars=+barsEl.value;
+ notes=makePattern(patEl.value,bars,bpm);
+ drawNotes();
+ speed=(W()*0.82)/look;
+ count.style.display='grid';
+ let seq=['3','2','1','GO!!'];
+ for(let i=0;i<seq.length;i++){
+  timers.push(setTimeout(()=>{
+   count.textContent=seq[i];
+   beep(i<3?520:740,.09,'triangle',.5);
+  },i*620));
+ }
+ timers.push(setTimeout(()=>{
+  count.style.display='none';
+  running=true;
+  startT=performance.now();
+  metro(notes[notes.length-1].t+1,bpm);
+  loop();
+ },2500));
+}
+
+function stop(clear=true){
+ running=false;
+ cancelAnimationFrame(raf);
+ timers.forEach(clearTimeout);
+ timers=[];
+ count.style.display='none';
+ if(clear)show('停止','good');
+ if(master&&ac)master.gain.cancelScheduledValues(ac.currentTime);
+}
+
+paw.addEventListener('pointerdown',press);
+$('start').addEventListener('click',start);
+$('stop').addEventListener('click',()=>stop(true));
+document.addEventListener('visibilitychange',()=>{if(document.hidden)stop(false);});
 })();
 </script>
 </body>
